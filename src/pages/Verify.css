@@ -1,0 +1,837 @@
+/* =========================================================
+   FONT
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Serif+Bengali:wght@100..900&display=swap");
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  min-height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #fff !important;
+
+  font-family:
+    "Noto Serif Bengali",
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.verify-page {
+  width: 100%;
+  min-height: 100vh;
+
+  background: #fff;
+}
+
+
+/* =========================================================
+   CARD WRAPPER
+   ORIGINAL: max-width 380px
+========================================================= */
+
+.verify-card-wrap {
+  width: 380px;
+  max-width: 100%;
+
+  margin: 0 auto;
+
+  background: #f7f8fb;
+
+  padding-bottom: 15px;
+}
+
+
+/* =========================================================
+   TOP HEADER
+   ORIGINAL: 65px
+========================================================= */
+
+.verify-top {
+  width: 100%;
+  height: 65px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-evenly;
+
+  background-color: #fff;
+
+  background-image:
+    url("/images/card_map.png");
+
+  background-size: 100%;
+  background-repeat: no-repeat;
+
+  box-shadow:
+    0 0 40px 0
+    rgba(189, 189, 189, 0.25);
+}
+
+
+/* =========================================================
+   HEADER LOGOS
+========================================================= */
+
+.verify-logo-left,
+.verify-logo-right {
+  flex: 0 0 auto;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.verify-logo-left {
+  width: 62px;
+}
+
+.verify-logo-right {
+  width: 62px;
+}
+
+.verify-logo-left img {
+  display: block;
+
+  width: auto;
+  height: 50px;
+
+  margin-top: 0;
+
+  object-fit: contain;
+}
+
+.verify-logo-right img {
+  display: block;
+
+  width: auto;
+  height: 45px;
+
+  margin-top: 10px;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   HEADER TITLE
+========================================================= */
+
+.verify-title {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  font-family:
+    "Noto Serif Bengali",
+    sans-serif;
+
+  font-weight: 700;
+
+  line-height: 1.05;
+
+  white-space: nowrap;
+}
+
+.gov-title {
+  color: green;
+
+  font-family:
+    "Noto Serif Bengali",
+    sans-serif;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  line-height: 1.15;
+}
+
+.bureau-title {
+  color: violet;
+
+  font-family:
+    "Noto Serif Bengali",
+    sans-serif;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ORIGINAL: padding 30px
+========================================================= */
+
+.verify-content {
+  padding: 30px;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   CLEARANCE TITLE
+========================================================= */
+
+.clearance-title {
+  width: 100%;
+
+  margin: 0;
+
+  padding: 0 0 4px;
+
+  text-align: center;
+
+  font-family:
+    "Noto Serif Bengali",
+    sans-serif;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+
+  color: #333;
+}
+
+.clearance-title span {
+  display: inline;
+}
+
+
+/* =========================================================
+   MAIN PERSON CARD
+   ORIGINAL:
+   margin-top 65px
+   height 150px
+========================================================= */
+
+.verify-info-board {
+  position: relative;
+
+  width: 100%;
+
+  height: 150px;
+
+  margin-top: 65px;
+
+  border-radius: 4px;
+
+  background: #fff;
+}
+
+
+/* =========================================================
+   PHOTO
+   ORIGINAL: 130 x 130
+========================================================= */
+
+.verify-pic-wrap {
+  position: relative;
+
+  width: 130px;
+  height: 130px;
+
+  top: -65px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  border: 3px solid
+    rgba(255, 255, 255, 0.12);
+
+  background: #fff;
+}
+
+.verify-pic-wrap img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   PERSON NAME
+   ORIGINAL top -65
+========================================================= */
+
+.person-name {
+  position: relative;
+
+  top: -65px;
+
+  z-index: 2;
+
+  margin: 0;
+
+  padding: 0;
+
+  text-align: center;
+
+  color: #52536d;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+
+/* =========================================================
+   EC META
+========================================================= */
+
+.person-meta {
+  position: relative;
+
+  top: -65px;
+
+  z-index: 2;
+
+  margin: 0;
+
+  padding: 0;
+
+  text-align: center;
+
+  color: rgba(51, 51, 51, 0.9);
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+  line-height: 1.8;
+}
+
+.meta-label {
+  color:
+    rgba(51, 51, 51, 0.8);
+
+  font-size: 14px;
+
+  font-weight: 400;
+}
+
+
+/* =========================================================
+   DECORATIVE LINE
+========================================================= */
+
+.card-line {
+  position: absolute;
+
+  width: 30px;
+
+  height: auto;
+
+  z-index: 1;
+
+  left: 50px;
+
+  top: 30%;
+}
+
+
+/* =========================================================
+   DECORATIVE STAR
+========================================================= */
+
+.card-star {
+  position: absolute;
+
+  width: 30px;
+
+  height: auto;
+
+  z-index: 1;
+
+  right: 50px;
+
+  top: 60%;
+}
+
+
+/* =========================================================
+   DATA BOARD
+   ORIGINAL padding 15px
+========================================================= */
+
+.verify-agency-board {
+  position: relative;
+
+  width: 100%;
+
+  margin-top: 4px;
+
+  padding: 15px;
+
+  border-radius: 4px;
+
+  background: #fff;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.verify-table {
+  width: 100%;
+
+  margin: 0;
+
+  padding: 0;
+
+  border-collapse: collapse;
+
+  border-spacing: 0;
+
+  background: #fff;
+}
+
+
+/* Original:
+   .table, th, td {
+     padding: 3px 5px !important;
+     text-align: start;
+   }
+*/
+
+.verify-table th,
+.verify-table td {
+  padding: 3px 5px !important;
+
+  text-align: start;
+
+  vertical-align: middle;
+
+  border: 1px solid #dee2e6;
+}
+
+
+/* =========================================================
+   TABLE LABEL
+========================================================= */
+
+.verify-table th {
+  width: 48%;
+
+  color:
+    rgba(15, 33, 55, 0.70);
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+  line-height: 1.35;
+}
+
+
+/* =========================================================
+   TABLE VALUE
+========================================================= */
+
+.verify-table td {
+  width: 52%;
+
+  color:
+    rgba(15, 33, 55, 0.90);
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  line-height: 1.35;
+
+  word-break: normal;
+}
+
+
+/* =========================================================
+   SECONDARY CARDS
+   BMET / PASSPORT
+========================================================= */
+
+.verify-secondary-top {
+  width: 100%;
+
+  height: 65px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 5px;
+
+  background-color: #fff;
+
+  background-image:
+    url("/images/card_map.png");
+
+  background-size: 100%;
+
+  background-repeat: no-repeat;
+
+  box-shadow:
+    0 0 40px 0
+    rgba(189, 189, 189, 0.25);
+}
+
+
+/* =========================================================
+   SECONDARY TITLE
+========================================================= */
+
+.secondary-title {
+  color: green;
+
+  font-family:
+    "Noto Serif Bengali",
+    sans-serif;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  text-align: left;
+}
+
+
+/* =========================================================
+   SECONDARY LOGOS
+========================================================= */
+
+.secondary-logos {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 0;
+}
+
+.secondary-logos img {
+  width: auto;
+
+  height: 45px;
+
+  margin-top: 10px;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   SECONDARY TABLE BOX
+========================================================= */
+
+.secondary-table-box {
+  width: 100%;
+
+  padding: 10px;
+
+  background: #fff;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.verify-loading-page {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #f7f8fb;
+}
+
+.verify-loading-box {
+  width: 380px;
+  max-width: calc(100% - 30px);
+
+  min-height: 180px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #fff;
+
+  color: #52536d;
+}
+
+.verify-loading-box p {
+  margin: 12px 0 0;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 14px;
+}
+
+.verify-spinner {
+  width: 28px;
+  height: 28px;
+
+  border: 3px solid #e5e7eb;
+
+  border-top-color: #2e3192;
+
+  border-radius: 50%;
+
+  animation:
+    verify-spin
+    0.8s linear infinite;
+}
+
+@keyframes verify-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.verify-error-page {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+
+  padding-top: 80px;
+
+  background: #f7f8fb;
+}
+
+.verify-error-box {
+  width: 380px;
+  max-width: calc(100% - 30px);
+
+  padding: 30px 20px;
+
+  background: #fff;
+
+  border-radius: 4px;
+
+  text-align: center;
+}
+
+.verify-error-icon {
+  width: 44px;
+  height: 44px;
+
+  margin: 0 auto 15px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 20px;
+
+  font-weight: 700;
+}
+
+.verify-error-box h2 {
+  margin: 0;
+
+  color: #333;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 20px;
+}
+
+.verify-error-box p {
+  margin: 10px 0 15px;
+
+  color: #6b7280;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 13px;
+}
+
+.verify-error-code {
+  padding: 8px;
+
+  background: #f7f8fb;
+
+  color: #52536d;
+
+  font-family:
+    "Times New Roman",
+    serif;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media screen and (max-width: 766px) {
+
+  .verify-card-wrap {
+    width: 100%;
+    max-width: 380px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL SCREEN
+========================================================= */
+
+@media screen and (max-width: 390px) {
+
+  .verify-top {
+    height: 65px;
+  }
+
+  .verify-logo-left {
+    width: 52px;
+  }
+
+  .verify-logo-right {
+    width: 52px;
+  }
+
+  .verify-logo-left img {
+    height: 46px;
+  }
+
+  .verify-logo-right img {
+    height: 42px;
+  }
+
+  .gov-title {
+    font-size: 13px;
+  }
+
+  .bureau-title {
+    font-size: 12px;
+  }
+
+  .verify-content {
+    padding: 30px;
+  }
+
+  .clearance-title {
+    font-size: 17px;
+  }
+
+  .verify-table th {
+    font-size: 13px;
+  }
+
+  .verify-table td {
+    font-size: 12px;
+  }
+
+}
