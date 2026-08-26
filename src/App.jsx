@@ -5,14 +5,12 @@ import Verify from "./pages/Verify";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 
-
 /* =========================================================
    ADMIN ROUTE PROTECTION
    ========================================================= */
 
 function ProtectedAdmin() {
-  const isLoggedIn =
-    sessionStorage.getItem("admin_logged_in") === "true";
+  const isLoggedIn = sessionStorage.getItem("admin_logged_in") === "true";
 
   if (!isLoggedIn) {
     return <Navigate to="/admin" replace />;
@@ -21,7 +19,6 @@ function ProtectedAdmin() {
   return <Admin />;
 }
 
-
 /* =========================================================
    APP
    ========================================================= */
@@ -29,45 +26,22 @@ function ProtectedAdmin() {
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
-
         {/* Public Home */}
-        <Route
-          path="/"
-          element={<Home />}
-        />
-
+        <Route path="/" element={<Home />} />
 
         {/* Public EC Verification */}
-        <Route
-          path="/verify/:code"
-          element={<Verify />}
-        />
-
+        <Route path="/verify/:code" element={<Verify />} />
 
         {/* Admin Login */}
-        <Route
-          path="/admin"
-          element={<Login />}
-        />
-
+        <Route path="/admin" element={<Login />} />
 
         {/* Protected Admin Dashboard */}
-        <Route
-          path="/admin/panel"
-          element={<ProtectedAdmin />}
-        />
-
+        <Route path="/admin/panel" element={<ProtectedAdmin />} />
 
         {/* Unknown URL */}
-        <Route
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
-
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-
     </BrowserRouter>
   );
 }
