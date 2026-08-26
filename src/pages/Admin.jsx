@@ -16,6 +16,7 @@ import {
   Globe2,
   ShieldCheck,
   RefreshCw,
+  Download,
 } from "lucide-react";
 
 import { QRCodeSVG } from "qrcode.react";
@@ -28,7 +29,6 @@ import {
 } from "../services/api";
 
 import "./Admin.css";
-
 
 /* =========================================================
    EMPTY FORM
@@ -65,7 +65,6 @@ const emptyForm = {
   description: "",
 };
 
-
 /* =========================================================
    ADMIN
 ========================================================= */
@@ -90,14 +89,12 @@ export default function Admin() {
 
   const [qrRecord, setQrRecord] = useState(null);
 
-
   /* =======================================================
      AUTH
   ======================================================= */
 
   useEffect(() => {
-    const loggedIn =
-      sessionStorage.getItem("admin_logged_in");
+    const loggedIn = sessionStorage.getItem("admin_logged_in");
 
     if (loggedIn !== "true") {
       navigate("/admin", { replace: true });
@@ -106,7 +103,6 @@ export default function Admin() {
 
     loadRecords();
   }, [navigate]);
-
 
   /* =======================================================
      LOAD RECORDS
@@ -126,16 +122,12 @@ export default function Admin() {
 
       setRecords(result.data || []);
     } catch (err) {
-      setError(
-        err?.message ||
-          "Unable to load verification records."
-      );
+      setError(err?.message || "Unable to load verification records.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }
-
 
   /* =======================================================
      ADD
@@ -148,7 +140,6 @@ export default function Admin() {
     setError("");
     setShowForm(true);
   }
-
 
   /* =======================================================
      EDIT
@@ -168,47 +159,34 @@ export default function Admin() {
       nid: record.nid || "",
 
       passport_no: record.passport_no || "",
-      passport_issue_date:
-        record.passport_issue_date || "",
-      passport_expire_date:
-        record.passport_expire_date || "",
+      passport_issue_date: record.passport_issue_date || "",
+      passport_expire_date: record.passport_expire_date || "",
 
       visa_no: record.visa_no || "",
-      visa_issue_date:
-        record.visa_issue_date || "",
-      visa_expire_date:
-        record.visa_expire_date || "",
+      visa_issue_date: record.visa_issue_date || "",
+      visa_expire_date: record.visa_expire_date || "",
 
-      referral_no:
-        record.referral_no || "",
+      referral_no: record.referral_no || "",
 
-      recruiting_agency:
-        record.recruiting_agency || "",
+      recruiting_agency: record.recruiting_agency || "",
 
-      employer:
-        record.employer || "",
+      employer: record.employer || "",
 
-      country:
-        record.country || "",
+      country: record.country || "",
 
-      bmet_no:
-        record.bmet_no || "",
+      bmet_no: record.bmet_no || "",
 
-      passport_no_1:
-        record.passport_no_1 || "",
+      passport_no_1: record.passport_no_1 || "",
 
-      status:
-        record.status || "VERIFIED",
+      status: record.status || "VERIFIED",
 
-      description:
-        record.description || "",
+      description: record.description || "",
     });
 
     setPhoto(null);
     setError("");
     setShowForm(true);
   }
-
 
   /* =======================================================
      INPUT
@@ -223,11 +201,9 @@ export default function Admin() {
     }));
   }
 
-
   function handlePhoto(e) {
     setPhoto(e.target.files?.[0] || null);
   }
-
 
   /* =======================================================
      SAVE
@@ -256,11 +232,9 @@ export default function Admin() {
         data.append("id", editing.id);
       }
 
-      Object.entries(form).forEach(
-        ([key, value]) => {
-          data.append(key, value ?? "");
-        }
-      );
+      Object.entries(form).forEach(([key, value]) => {
+        data.append(key, value ?? "");
+      });
 
       if (photo) {
         data.append("photo", photo);
@@ -278,15 +252,11 @@ export default function Admin() {
 
       await loadRecords();
     } catch (err) {
-      setError(
-        err?.message ||
-          "Unable to save verification record."
-      );
+      setError(err?.message || "Unable to save verification record.");
     } finally {
       setSaving(false);
     }
   }
-
 
   /* =======================================================
      DELETE
@@ -294,7 +264,7 @@ export default function Admin() {
 
   async function handleDelete(record) {
     const confirmed = window.confirm(
-      `Delete ${record.name}'s verification record?`
+      `Delete ${record.name}'s verification record?`,
     );
 
     if (!confirmed) {
@@ -308,37 +278,28 @@ export default function Admin() {
 
       await loadRecords();
     } catch (err) {
-      setError(
-        err?.message ||
-          "Unable to delete record."
-      );
+      setError(err?.message || "Unable to delete record.");
     }
   }
-
 
   /* =======================================================
      LOGOUT
   ======================================================= */
 
   function logout() {
-    sessionStorage.removeItem(
-      "admin_logged_in"
-    );
+    sessionStorage.removeItem("admin_logged_in");
 
     navigate("/admin", {
       replace: true,
     });
   }
 
-
   /* =======================================================
      SEARCH
   ======================================================= */
 
   const filteredRecords = useMemo(() => {
-    const query = search
-      .trim()
-      .toLowerCase();
+    const query = search.trim().toLowerCase();
 
     if (!query) {
       return records;
@@ -358,22 +319,87 @@ export default function Admin() {
       return fields.some((value) =>
         String(value || "")
           .toLowerCase()
-          .includes(query)
+          .includes(query),
       );
     });
   }, [records, search]);
-
 
   /* =======================================================
      VERIFY URL
   ======================================================= */
 
   function getVerifyUrl(ecNo) {
-    return `https://raims.oep-gov-bd.site/verify/${encodeURIComponent(
-      ecNo
-    )}`;
+    return `https://raims.oep-gov-bd.site/verify/${encodeURIComponent(ecNo)}`;
   }
 
+  function downloadQrPng(record) {
+    if (!record?.ec_no) return;
+
+    const svg = document.querySelector(".qr-box svg");
+
+    if (!svg) {
+      setError("QR code is not ready.");
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+
+    const svgBlob = new Blob([svgData], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(svgBlob);
+
+    const image = new Image();
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+
+      const size = 1200;
+
+      canvas.width = size;
+      canvas.height = size;
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+
+      ctx.drawImage(image, 0, 0, size, size);
+
+      URL.revokeObjectURL(url);
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          setError("Unable to generate PNG.");
+          return;
+        }
+
+        const downloadUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = downloadUrl;
+
+        link.download = `QR-${record.ec_no}.png`;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(downloadUrl);
+      }, "image/png");
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      setError("Unable to generate QR PNG.");
+    };
+
+    image.src = url;
+  }
 
   /* =======================================================
      VIEW VERIFICATION
@@ -381,62 +407,38 @@ export default function Admin() {
 
   function openVerification(record) {
     if (!record?.ec_no) {
-      setError(
-        "This record does not have an EC No."
-      );
+      setError("This record does not have an EC No.");
       return;
     }
 
-    const verifyUrl =
-      `/verify/${encodeURIComponent(
-        record.ec_no
-      )}`;
+    const verifyUrl = `/verify/${encodeURIComponent(record.ec_no)}`;
 
-    window.open(
-      verifyUrl,
-      "_blank",
-      "noopener,noreferrer"
-    );
+    window.open(verifyUrl, "_blank", "noopener,noreferrer");
   }
-
 
   /* =======================================================
      STATISTICS
   ======================================================= */
 
-  const totalRecords =
-    records.length;
+  const totalRecords = records.length;
 
-  const verifiedRecords =
-    records.filter(
-      (record) =>
-        String(record.status)
-          .toUpperCase() ===
-        "VERIFIED"
-    ).length;
+  const verifiedRecords = records.filter(
+    (record) => String(record.status).toUpperCase() === "VERIFIED",
+  ).length;
 
-  const pendingRecords =
-    records.filter(
-      (record) =>
-        String(record.status)
-          .toUpperCase() ===
-        "PENDING"
-    ).length;
+  const pendingRecords = records.filter(
+    (record) => String(record.status).toUpperCase() === "PENDING",
+  ).length;
 
-  const countryCount =
-    new Set(
-      records
-        .map(
-          (record) =>
-            String(
-              record.country || ""
-            )
-              .trim()
-              .toLowerCase()
-        )
-        .filter(Boolean)
-    ).size;
-
+  const countryCount = new Set(
+    records
+      .map((record) =>
+        String(record.country || "")
+          .trim()
+          .toLowerCase(),
+      )
+      .filter(Boolean),
+  ).size;
 
   /* =======================================================
      RENDER
@@ -444,302 +446,181 @@ export default function Admin() {
 
   return (
     <main className="admin-page">
-
       {/* ===================================================
           HEADER
       =================================================== */}
 
       <header className="admin-header">
-
         <div className="admin-brand-area">
-
           <div className="admin-brand-icon">
-            <img
-            src="/icon.png"
-            alt="OEP RAIMS"
-          />
+            <img src="/icon.png" alt="OEP RAIMS" />
           </div>
 
           <div className="admin-brand-copy">
+            <div className="admin-eyebrow">VERIFICATION SYSTEM</div>
 
-            <div className="admin-eyebrow">
-              VERIFICATION SYSTEM
-            </div>
+            <h1>Verification Records</h1>
 
-            <h1>
-              Verification Records
-            </h1>
-
-            <p>
-              Manage verified records,
-              documents and QR access.
-            </p>
-
+            <p>Manage verified records, documents and QR access.</p>
           </div>
-
         </div>
 
-
         <div className="admin-header-actions">
-
           <button
             type="button"
             className="refresh-button"
-            onClick={() =>
-              loadRecords(true)
-            }
+            onClick={() => loadRecords(true)}
             disabled={refreshing}
           >
-            <RefreshCw
-              size={15}
-              className={
-                refreshing
-                  ? "spin"
-                  : ""
-              }
-            />
+            <RefreshCw size={15} className={refreshing ? "spin" : ""} />
 
-            <span>
-              Refresh
-            </span>
+            <span>Refresh</span>
           </button>
 
-
-          <button
-            type="button"
-            className="logout-button"
-            onClick={logout}
-          >
+          <button type="button" className="logout-button" onClick={logout}>
             <LogOut size={16} />
 
-            <span>
-              Logout
-            </span>
+            <span>Logout</span>
           </button>
-
         </div>
-
       </header>
-
 
       {/* ===================================================
           CONTENT
       =================================================== */}
 
       <section className="admin-content">
-
         {/* ERROR */}
 
         {error && (
           <div className="admin-error">
-
             <div className="admin-error-content">
               <span className="admin-error-dot" />
 
-              <span>
-                {error}
-              </span>
+              <span>{error}</span>
             </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                setError("")
-              }
-            >
+            <button type="button" onClick={() => setError("")}>
               <X size={15} />
             </button>
-
           </div>
         )}
-
 
         {/* =================================================
             STATS
         ================================================= */}
 
         <div className="stats-grid">
-
           <StatCard
-            icon={
-              <FileCheck2
-                size={19}
-              />
-            }
+            icon={<FileCheck2 size={19} />}
             label="Total Records"
             value={totalRecords}
             type="blue"
           />
 
           <StatCard
-            icon={
-              <ShieldCheck
-                size={19}
-              />
-            }
+            icon={<ShieldCheck size={19} />}
             label="Verified"
             value={verifiedRecords}
             type="green"
           />
 
           <StatCard
-            icon={
-              <UserRound
-                size={19}
-              />
-            }
+            icon={<UserRound size={19} />}
             label="Pending"
             value={pendingRecords}
             type="orange"
           />
 
           <StatCard
-            icon={
-              <Globe2
-                size={19}
-              />
-            }
+            icon={<Globe2 size={19} />}
             label="Countries"
             value={countryCount}
             type="purple"
           />
-
         </div>
-
 
         {/* =================================================
             RECORDS
         ================================================= */}
 
         <section className="records-card">
-
           {/* RECORD HEADER */}
 
           <div className="records-card-header">
-
             <div className="records-title-area">
+              <div className="section-kicker">DATABASE</div>
 
-              <div className="section-kicker">
-                DATABASE
-              </div>
+              <h2>All Verification Records</h2>
 
-              <h2>
-                All Verification Records
-              </h2>
-
-              <p>
-                Search, edit, view or generate
-                a QR code for any record.
-              </p>
-
+              <p>Search, edit, view or generate a QR code for any record.</p>
             </div>
 
-
             <div className="records-header-right">
-
               <button
                 type="button"
                 className="records-add-button"
                 onClick={openAdd}
               >
-                <Plus
-                  size={16}
-                  strokeWidth={2.3}
-                />
+                <Plus size={16} strokeWidth={2.3} />
 
-                <span>
-                  Add Data
-                </span>
+                <span>Add Data</span>
               </button>
 
-
               <div className="header-record-count">
+                <strong>{filteredRecords.length}</strong>
 
-                <strong>
-                  {filteredRecords.length}
-                </strong>
-
-                <span>
-                  RECORDS
-                </span>
-
+                <span>RECORDS</span>
               </div>
-
             </div>
-
           </div>
-
 
           {/* SEARCH */}
 
           <div className="record-toolbar">
-
             <div className="search-admin">
-
               <Search size={17} />
 
               <input
                 type="text"
                 placeholder="Search name, EC No, passport, BMET..."
                 value={search}
-                onChange={(e) =>
-                  setSearch(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setSearch(e.target.value)}
               />
 
               {search && (
                 <button
                   type="button"
                   className="clear-search"
-                  onClick={() =>
-                    setSearch("")
-                  }
+                  onClick={() => setSearch("")}
                   aria-label="Clear search"
                 >
                   <X size={14} />
                 </button>
               )}
-
             </div>
 
             {search && (
               <div className="search-result-count">
                 {filteredRecords.length} result
-                {filteredRecords.length !== 1
-                  ? "s"
-                  : ""}
+                {filteredRecords.length !== 1 ? "s" : ""}
               </div>
             )}
-
           </div>
-
 
           {/* TABLE */}
 
           <div className="admin-table-wrapper">
-
             {loading ? (
-
               <div className="admin-loading">
-
                 <div className="table-spinner" />
 
-                <strong>
-                  Loading records
-                </strong>
+                <strong>Loading records</strong>
 
-                <span>
-                  Please wait...
-                </span>
-
+                <span>Please wait...</span>
               </div>
-
             ) : filteredRecords.length > 0 ? (
-
               <table className="admin-table">
-
                 <thead>
                   <tr>
                     <th>EC NO</th>
@@ -752,198 +633,128 @@ export default function Admin() {
                   </tr>
                 </thead>
 
-
                 <tbody>
+                  {filteredRecords.map((record) => (
+                    <tr key={record.id}>
+                      {/* EC */}
 
-                  {filteredRecords.map(
-                    (record) => (
+                      <td>
+                        <div className="ec-cell">
+                          <span className="ec-dot" />
 
-                      <tr
-                        key={record.id}
-                      >
+                          <strong>{record.ec_no || "—"}</strong>
+                        </div>
+                      </td>
 
-                        {/* EC */}
+                      {/* NAME */}
 
-                        <td>
-                          <div className="ec-cell">
-
-                            <span className="ec-dot" />
-
-                            <strong>
-                              {record.ec_no ||
-                                "—"}
-                            </strong>
-
-                          </div>
-                        </td>
-
-
-                        {/* NAME */}
-
-                        <td>
-
-                          <div className="name-cell">
-
-                            <div className="name-avatar">
-                              {record.name
-                                ?.charAt(0)
-                                ?.toUpperCase() ||
-                                "?"}
-                            </div>
-
-                            <div className="name-content">
-
-                              <strong>
-                                {record.name ||
-                                  "—"}
-                              </strong>
-
-                              <span>
-                                {record.recruiting_agency ||
-                                  "Verification record"}
-                              </span>
-
-                            </div>
-
+                      <td>
+                        <div className="name-cell">
+                          <div className="name-avatar">
+                            {record.name?.charAt(0)?.toUpperCase() || "?"}
                           </div>
 
-                        </td>
+                          <div className="name-content">
+                            <strong>{record.name || "—"}</strong>
 
+                            <span>
+                              {record.recruiting_agency ||
+                                "Verification record"}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
 
-                        {/* BMET */}
+                      {/* BMET */}
 
-                        <td>
-                          <span className="table-value">
-                            {record.bmet_no ||
-                              "—"}
-                          </span>
-                        </td>
+                      <td>
+                        <span className="table-value">
+                          {record.bmet_no || "—"}
+                        </span>
+                      </td>
 
+                      {/* PASSPORT */}
 
-                        {/* PASSPORT */}
+                      <td>
+                        <span className="table-value">
+                          {record.passport_no || "—"}
+                        </span>
+                      </td>
 
-                        <td>
-                          <span className="table-value">
-                            {record.passport_no ||
-                              "—"}
-                          </span>
-                        </td>
+                      {/* COUNTRY */}
 
+                      <td>
+                        <span className="country-value">
+                          {record.country || "—"}
+                        </span>
+                      </td>
 
-                        {/* COUNTRY */}
+                      {/* STATUS */}
 
-                        <td>
-                          <span className="country-value">
-                            {record.country ||
-                              "—"}
-                          </span>
-                        </td>
+                      <td>
+                        <span
+                          className={`status-badge ${String(
+                            record.status || "",
+                          ).toLowerCase()}`}
+                        >
+                          <span className="status-dot" />
 
+                          {record.status || "UNKNOWN"}
+                        </span>
+                      </td>
 
-                        {/* STATUS */}
+                      {/* ACTIONS */}
 
-                        <td>
-
-                          <span
-                            className={`status-badge ${String(
-                              record.status ||
-                                ""
-                            ).toLowerCase()}`}
+                      <td>
+                        <div className="row-actions">
+                          <button
+                            type="button"
+                            className="action-button view"
+                            title="View Verification"
+                            onClick={() => openVerification(record)}
                           >
-                            <span className="status-dot" />
+                            <Eye size={15} />
+                          </button>
 
-                            {record.status ||
-                              "UNKNOWN"}
-                          </span>
+                          <button
+                            type="button"
+                            className="action-button edit"
+                            title="Edit"
+                            onClick={() => openEdit(record)}
+                          >
+                            <Pencil size={15} />
+                          </button>
 
-                        </td>
+                          <button
+                            type="button"
+                            className="action-button qr"
+                            title="Generate QR"
+                            onClick={() => setQrRecord(record)}
+                          >
+                            <QrCode size={15} />
+                          </button>
 
-
-                        {/* ACTIONS */}
-
-                        <td>
-
-                          <div className="row-actions">
-
-                            <button
-                              type="button"
-                              className="action-button view"
-                              title="View Verification"
-                              onClick={() =>
-                                openVerification(
-                                  record
-                                )
-                              }
-                            >
-                              <Eye size={15} />
-                            </button>
-
-
-                            <button
-                              type="button"
-                              className="action-button edit"
-                              title="Edit"
-                              onClick={() =>
-                                openEdit(
-                                  record
-                                )
-                              }
-                            >
-                              <Pencil size={15} />
-                            </button>
-
-
-                            <button
-                              type="button"
-                              className="action-button qr"
-                              title="Generate QR"
-                              onClick={() =>
-                                setQrRecord(
-                                  record
-                                )
-                              }
-                            >
-                              <QrCode size={15} />
-                            </button>
-
-
-                            <button
-                              type="button"
-                              className="action-button delete"
-                              title="Delete"
-                              onClick={() =>
-                                handleDelete(
-                                  record
-                                )
-                              }
-                            >
-                              <Trash2 size={15} />
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
+                          <button
+                            type="button"
+                            className="action-button delete"
+                            title="Delete"
+                            onClick={() => handleDelete(record)}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
-
               </table>
-
             ) : (
-
               <div className="no-records">
-
                 <div className="no-records-icon">
                   <Search size={21} />
                 </div>
 
-                <strong>
-                  No records found
-                </strong>
+                <strong>No records found</strong>
 
                 <span>
                   {search
@@ -952,106 +763,64 @@ export default function Admin() {
                 </span>
 
                 {!search && (
-                  <button
-                    type="button"
-                    onClick={openAdd}
-                  >
+                  <button type="button" onClick={openAdd}>
                     <Plus size={14} />
                     Add Data
                   </button>
                 )}
-
               </div>
-
             )}
-
           </div>
-
         </section>
-
       </section>
-
 
       {/* ===================================================
           ADD / EDIT MODAL
       =================================================== */}
 
       {showForm && (
-
         <div
           className="modal-overlay"
           onMouseDown={(e) => {
-            if (
-              e.target === e.currentTarget
-            ) {
+            if (e.target === e.currentTarget) {
               setShowForm(false);
             }
           }}
         >
-
           <div className="data-modal">
-
             <div className="modal-header">
-
               <div className="modal-heading">
-
                 <div className="modal-icon">
-                  {editing ? (
-                    <Pencil size={18} />
-                  ) : (
-                    <Plus size={18} />
-                  )}
+                  {editing ? <Pencil size={18} /> : <Plus size={18} />}
                 </div>
 
                 <div>
-
                   <div className="section-kicker">
-                    {editing
-                      ? "EDIT RECORD"
-                      : "NEW RECORD"}
+                    {editing ? "EDIT RECORD" : "NEW RECORD"}
                   </div>
 
-                  <h2>
-                    {editing
-                      ? "Edit Verification"
-                      : "Add Verification"}
-                  </h2>
+                  <h2>{editing ? "Edit Verification" : "Add Verification"}</h2>
 
-                  <p>
-                    Enter the verification
-                    information below.
-                  </p>
-
+                  <p>Enter the verification information below.</p>
                 </div>
-
               </div>
-
 
               <button
                 type="button"
                 className="modal-close"
-                onClick={() =>
-                  setShowForm(false)
-                }
+                onClick={() => setShowForm(false)}
                 aria-label="Close"
               >
                 <X size={18} />
               </button>
-
             </div>
 
-
-            <form
-              onSubmit={saveRecord}
-              className="verification-form"
-            >
-
+            <form onSubmit={saveRecord} className="verification-form">
               <FormSection
                 title="EC Card"
                 description="Basic emigration clearance information."
               >
                 <div className="form-grid">
-
                   <Field
                     label="EC No"
                     name="ec_no"
@@ -1068,16 +837,13 @@ export default function Admin() {
                     value={form.ec_date}
                     onChange={handleChange}
                   />
-
                 </div>
               </FormSection>
-
 
               <FormSection
                 title="Personal Information"
                 description="Identity and personal details."
               >
-
                 <Field
                   label="Name"
                   name="name"
@@ -1088,7 +854,6 @@ export default function Admin() {
                 />
 
                 <div className="form-grid">
-
                   <Field
                     label="Birth Date"
                     name="birth_date"
@@ -1102,12 +867,7 @@ export default function Admin() {
                     name="gender"
                     value={form.gender}
                     onChange={handleChange}
-                    options={[
-                      "",
-                      "Male",
-                      "Female",
-                      "Other",
-                    ]}
+                    options={["", "Male", "Female", "Other"]}
                   />
 
                   <Field
@@ -1124,23 +884,15 @@ export default function Admin() {
                     value={form.nid}
                     onChange={handleChange}
                   />
-
                 </div>
 
-                <FileField
-                  label="Photo"
-                  onChange={handlePhoto}
-                  file={photo}
-                />
-
+                <FileField label="Photo" onChange={handlePhoto} file={photo} />
               </FormSection>
-
 
               <FormSection
                 title="Passport"
                 description="Passport number and validity."
               >
-
                 <Field
                   label="Passport No"
                   name="passport_no"
@@ -1149,14 +901,11 @@ export default function Admin() {
                 />
 
                 <div className="form-grid">
-
                   <Field
                     label="Issue Date"
                     name="passport_issue_date"
                     type="date"
-                    value={
-                      form.passport_issue_date
-                    }
+                    value={form.passport_issue_date}
                     onChange={handleChange}
                   />
 
@@ -1164,22 +913,13 @@ export default function Admin() {
                     label="Expire Date"
                     name="passport_expire_date"
                     type="date"
-                    value={
-                      form.passport_expire_date
-                    }
+                    value={form.passport_expire_date}
                     onChange={handleChange}
                   />
-
                 </div>
-
               </FormSection>
 
-
-              <FormSection
-                title="Visa"
-                description="Visa number and validity."
-              >
-
+              <FormSection title="Visa" description="Visa number and validity.">
                 <Field
                   label="Visa No"
                   name="visa_no"
@@ -1188,14 +928,11 @@ export default function Admin() {
                 />
 
                 <div className="form-grid">
-
                   <Field
                     label="Issue Date"
                     name="visa_issue_date"
                     type="date"
-                    value={
-                      form.visa_issue_date
-                    }
+                    value={form.visa_issue_date}
                     onChange={handleChange}
                   />
 
@@ -1203,21 +940,13 @@ export default function Admin() {
                     label="Expire Date"
                     name="visa_expire_date"
                     type="date"
-                    value={
-                      form.visa_expire_date
-                    }
+                    value={form.visa_expire_date}
                     onChange={handleChange}
                   />
-
                 </div>
-
               </FormSection>
 
-
-              <FormSection
-                title="Referral"
-                description="Referral information."
-              >
+              <FormSection title="Referral" description="Referral information.">
                 <Field
                   label="Referral No"
                   name="referral_no"
@@ -1226,23 +955,18 @@ export default function Admin() {
                 />
               </FormSection>
 
-
               <FormSection
                 title="Employment"
                 description="Agency, employer and destination."
               >
-
                 <Field
                   label="Recruiting Agency"
                   name="recruiting_agency"
-                  value={
-                    form.recruiting_agency
-                  }
+                  value={form.recruiting_agency}
                   onChange={handleChange}
                 />
 
                 <div className="form-grid">
-
                   <Field
                     label="Employer"
                     name="employer"
@@ -1256,11 +980,8 @@ export default function Admin() {
                     value={form.country}
                     onChange={handleChange}
                   />
-
                 </div>
-
               </FormSection>
-
 
               <FormSection
                 title="BMET Registration"
@@ -1274,7 +995,6 @@ export default function Admin() {
                 />
               </FormSection>
 
-
               <FormSection
                 title="Passports"
                 description="Additional passport record."
@@ -1282,37 +1002,25 @@ export default function Admin() {
                 <Field
                   label="Passport No 1"
                   name="passport_no_1"
-                  value={
-                    form.passport_no_1
-                  }
+                  value={form.passport_no_1}
                   onChange={handleChange}
                 />
               </FormSection>
-
 
               <FormSection
                 title="Status & Notes"
                 description="Verification status and optional notes."
               >
-
                 <SelectField
                   label="Verification Status"
                   name="status"
                   value={form.status}
                   onChange={handleChange}
-                  options={[
-                    "VERIFIED",
-                    "PENDING",
-                    "EXPIRED",
-                    "REVOKED",
-                  ]}
+                  options={["VERIFIED", "PENDING", "EXPIRED", "REVOKED"]}
                 />
 
                 <div className="form-field">
-
-                  <label>
-                    Description
-                  </label>
+                  <label>Description</label>
 
                   <textarea
                     name="description"
@@ -1321,11 +1029,8 @@ export default function Admin() {
                     rows="4"
                     placeholder="Additional information..."
                   />
-
                 </div>
-
               </FormSection>
-
 
               {error && (
                 <div className="form-error">
@@ -1334,25 +1039,16 @@ export default function Admin() {
                 </div>
               )}
 
-
               <div className="modal-actions">
-
                 <button
                   type="button"
                   className="cancel-button"
-                  onClick={() =>
-                    setShowForm(false)
-                  }
+                  onClick={() => setShowForm(false)}
                 >
                   Cancel
                 </button>
 
-                <button
-                  type="submit"
-                  className="save-button"
-                  disabled={saving}
-                >
-
+                <button type="submit" className="save-button" disabled={saving}>
                   {saving ? (
                     <>
                       <span className="button-spinner" />
@@ -1360,214 +1056,130 @@ export default function Admin() {
                     </>
                   ) : (
                     <>
-                      {editing ? (
-                        <Pencil size={15} />
-                      ) : (
-                        <Plus size={15} />
-                      )}
+                      {editing ? <Pencil size={15} /> : <Plus size={15} />}
 
-                      {editing
-                        ? "Save Changes"
-                        : "Add Data"}
+                      {editing ? "Save Changes" : "Add Data"}
                     </>
                   )}
-
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
-
       )}
-
 
       {/* ===================================================
           QR MODAL
       =================================================== */}
 
       {qrRecord && (
-
         <div
           className="modal-overlay"
           onMouseDown={(e) => {
-            if (
-              e.target === e.currentTarget
-            ) {
+            if (e.target === e.currentTarget) {
               setQrRecord(null);
             }
           }}
         >
-
           <div className="qr-modal">
-
             <button
               type="button"
               className="qr-close"
-              onClick={() =>
-                setQrRecord(null)
-              }
+              onClick={() => setQrRecord(null)}
               aria-label="Close QR"
             >
               <X size={18} />
             </button>
 
-
             <div className="qr-modal-header">
-
               <div className="qr-modal-icon">
                 <QrCode size={20} />
               </div>
 
               <div>
+                <div className="section-kicker">QR VERIFICATION</div>
 
-                <div className="section-kicker">
-                  QR VERIFICATION
-                </div>
+                <h2>Verification QR</h2>
 
-                <h2>
-                  Verification QR
-                </h2>
-
-                <p>
-                  Scan to open the public
-                  verification page.
-                </p>
-
+                <p>Scan to open the public verification page.</p>
               </div>
-
             </div>
-
 
             <div className="qr-record-info">
+              <span>EC No</span>
 
-              <span>
-                EC No
-              </span>
-
-              <strong>
-                {qrRecord.ec_no || "—"}
-              </strong>
-
+              <strong>{qrRecord.ec_no || "—"}</strong>
             </div>
 
-
             <div className="qr-box">
-
               <QRCodeSVG
-                value={getVerifyUrl(
-                  qrRecord.ec_no
-                )}
+                value={getVerifyUrl(qrRecord.ec_no)}
                 size={220}
                 level="H"
                 includeMargin
               />
-
             </div>
 
-
-            <div className="qr-url">
-              {getVerifyUrl(
-                qrRecord.ec_no
-              )}
-            </div>
-
+            <div className="qr-url">{getVerifyUrl(qrRecord.ec_no)}</div>
+            <button
+              type="button"
+              className="qr-download-button"
+              onClick={() => downloadQrPng(qrRecord)}
+            >
+              <Download size={15} />
+              Download PNG
+            </button>
 
             <button
               type="button"
               className="qr-open-button"
-              onClick={() =>
-                openVerification(
-                  qrRecord
-                )
-              }
+              onClick={() => openVerification(qrRecord)}
             >
               <ExternalLink size={15} />
               Open Verification
             </button>
-
           </div>
-
         </div>
-
       )}
-
     </main>
   );
 }
-
 
 /* =========================================================
    STAT CARD
 ========================================================= */
 
-function StatCard({
-  icon,
-  label,
-  value,
-  type,
-}) {
+function StatCard({ icon, label, value, type }) {
   return (
-    <div
-      className={`stat-card ${type}`}
-    >
-
-      <div className="stat-icon">
-        {icon}
-      </div>
+    <div className={`stat-card ${type}`}>
+      <div className="stat-icon">{icon}</div>
 
       <div className="stat-content">
+        <span>{label}</span>
 
-        <span>
-          {label}
-        </span>
-
-        <strong>
-          {value}
-        </strong>
-
+        <strong>{value}</strong>
       </div>
-
     </div>
   );
 }
-
 
 /* =========================================================
    FORM SECTION
 ========================================================= */
 
-function FormSection({
-  title,
-  description,
-  children,
-}) {
+function FormSection({ title, description, children }) {
   return (
     <section className="form-section">
-
       <div className="form-section-heading">
+        <h3>{title}</h3>
 
-        <h3>
-          {title}
-        </h3>
-
-        <p>
-          {description}
-        </p>
-
+        <p>{description}</p>
       </div>
 
-      <div className="form-section-content">
-        {children}
-      </div>
-
+      <div className="form-section-content">{children}</div>
     </section>
   );
 }
-
 
 /* =========================================================
    FIELD
@@ -1584,17 +1196,10 @@ function Field({
 }) {
   return (
     <div className="form-field">
-
       <label htmlFor={name}>
-
         {label}
 
-        {required && (
-          <span className="required-star">
-            *
-          </span>
-        )}
-
+        {required && <span className="required-star">*</span>}
       </label>
 
       <input
@@ -1606,71 +1211,40 @@ function Field({
         placeholder={placeholder}
         required={required}
       />
-
     </div>
   );
 }
-
 
 /* =========================================================
    SELECT
 ========================================================= */
 
-function SelectField({
-  label,
-  name,
-  value,
-  onChange,
-  options,
-}) {
+function SelectField({ label, name, value, onChange, options }) {
   return (
     <div className="form-field">
+      <label htmlFor={name}>{label}</label>
 
-      <label htmlFor={name}>
-        {label}
-      </label>
-
-      <select
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-      >
-
+      <select id={name} name={name} value={value} onChange={onChange}>
         {options.map((option) => (
-          <option
-            key={option}
-            value={option}
-          >
+          <option key={option} value={option}>
             {option || "Select"}
           </option>
         ))}
-
       </select>
-
     </div>
   );
 }
-
 
 /* =========================================================
    FILE
 ========================================================= */
 
-function FileField({
-  label,
-  onChange,
-  file,
-}) {
+function FileField({ label, onChange, file }) {
   return (
     <div className="file-field">
-
-      <label>
-        {label}
-      </label>
+      <label>{label}</label>
 
       <label className="file-dropzone">
-
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"
@@ -1682,21 +1256,11 @@ function FileField({
         </div>
 
         <div className="file-drop-copy">
+          <strong>{file ? file.name : "Choose profile photo"}</strong>
 
-          <strong>
-            {file
-              ? file.name
-              : "Choose profile photo"}
-          </strong>
-
-          <span>
-            JPG, PNG or WEBP
-          </span>
-
+          <span>JPG, PNG or WEBP</span>
         </div>
-
       </label>
-
     </div>
   );
 }
