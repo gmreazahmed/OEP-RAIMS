@@ -1,0 +1,19 @@
+.home-page {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+.home-logo {
+  width: 110px;
+  height: 110px;
+
+  object-fit: contain;
+
+  display: block;
+}

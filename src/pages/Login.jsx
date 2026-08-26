@@ -39,7 +39,6 @@ export default function Login() {
 
     setLoading(true);
 
-    // Small delay for a smoother login experience
     setTimeout(() => {
       if (enteredPassword !== adminPassword) {
         setError("Incorrect password.");
@@ -69,7 +68,10 @@ export default function Login() {
 
         {/* Logo */}
         <div className="login-logo">
-          <ShieldCheck size={30} strokeWidth={1.8} />
+          <img
+            src="/icon.png"
+            alt="OEP RAIMS"
+          />
         </div>
 
         {/* Heading */}
@@ -83,7 +85,7 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Form */}
         <form
           className="login-form"
           onSubmit={handleSubmit}
@@ -145,14 +147,12 @@ export default function Login() {
 
           </div>
 
-          {/* Error */}
           {error && (
             <div className="login-error">
               {error}
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             className="login-button"

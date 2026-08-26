@@ -74,11 +74,11 @@ export default function Admin() {
   const navigate = useNavigate();
 
   const [records, setRecords] = useState([]);
-
   const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [error, setError] = useState("");
 
@@ -90,8 +90,6 @@ export default function Admin() {
 
   const [qrRecord, setQrRecord] = useState(null);
 
-  const [refreshing, setRefreshing] = useState(false);
-
 
   /* =======================================================
      AUTH
@@ -102,7 +100,7 @@ export default function Admin() {
       sessionStorage.getItem("admin_logged_in");
 
     if (loggedIn !== "true") {
-      navigate("/admin");
+      navigate("/admin", { replace: true });
       return;
     }
 
@@ -130,7 +128,7 @@ export default function Admin() {
     } catch (err) {
       setError(
         err?.message ||
-          "Unable to load records."
+          "Unable to load verification records."
       );
     } finally {
       setLoading(false);
@@ -217,10 +215,7 @@ export default function Admin() {
   ======================================================= */
 
   function handleChange(e) {
-    const {
-      name,
-      value,
-    } = e.target;
+    const { name, value } = e.target;
 
     setForm((current) => ({
       ...current,
@@ -230,9 +225,7 @@ export default function Admin() {
 
 
   function handlePhoto(e) {
-    setPhoto(
-      e.target.files?.[0] || null
-    );
+    setPhoto(e.target.files?.[0] || null);
   }
 
 
@@ -260,26 +253,17 @@ export default function Admin() {
       const data = new FormData();
 
       if (editing) {
-        data.append(
-          "id",
-          editing.id
-        );
+        data.append("id", editing.id);
       }
 
       Object.entries(form).forEach(
         ([key, value]) => {
-          data.append(
-            key,
-            value ?? ""
-          );
+          data.append(key, value ?? "");
         }
       );
 
       if (photo) {
-        data.append(
-          "photo",
-          photo
-        );
+        data.append("photo", photo);
       }
 
       if (editing) {
@@ -296,7 +280,7 @@ export default function Admin() {
     } catch (err) {
       setError(
         err?.message ||
-          "Unable to save record."
+          "Unable to save verification record."
       );
     } finally {
       setSaving(false);
@@ -309,10 +293,9 @@ export default function Admin() {
   ======================================================= */
 
   async function handleDelete(record) {
-    const confirmed =
-      window.confirm(
-        `Delete ${record.name}'s verification record?`
-      );
+    const confirmed = window.confirm(
+      `Delete ${record.name}'s verification record?`
+    );
 
     if (!confirmed) {
       return;
@@ -321,9 +304,7 @@ export default function Admin() {
     try {
       setError("");
 
-      await deleteRecord(
-        record.id
-      );
+      await deleteRecord(record.id);
 
       await loadRecords();
     } catch (err) {
@@ -344,7 +325,9 @@ export default function Admin() {
       "admin_logged_in"
     );
 
-    navigate("/admin");
+    navigate("/admin", {
+      replace: true,
+    });
   }
 
 
@@ -352,42 +335,37 @@ export default function Admin() {
      SEARCH
   ======================================================= */
 
-  const filteredRecords =
-    useMemo(() => {
-      const query =
-        search
-          .trim()
-          .toLowerCase();
+  const filteredRecords = useMemo(() => {
+    const query = search
+      .trim()
+      .toLowerCase();
 
-      if (!query) {
-        return records;
-      }
+    if (!query) {
+      return records;
+    }
 
-      return records.filter(
-        (record) => {
-          const fields = [
-            record.name,
-            record.ec_no,
-            record.bmet_no,
-            record.passport_no,
-            record.visa_no,
-            record.country,
-            record.recruiting_agency,
-          ];
+    return records.filter((record) => {
+      const fields = [
+        record.name,
+        record.ec_no,
+        record.bmet_no,
+        record.passport_no,
+        record.visa_no,
+        record.country,
+        record.recruiting_agency,
+      ];
 
-          return fields.some(
-            (value) =>
-              String(value || "")
-                .toLowerCase()
-                .includes(query)
-          );
-        }
+      return fields.some((value) =>
+        String(value || "")
+          .toLowerCase()
+          .includes(query)
       );
-    }, [records, search]);
+    });
+  }, [records, search]);
 
 
   /* =======================================================
-     QR URL
+     VERIFY URL
   ======================================================= */
 
   function getVerifyUrl(ecNo) {
@@ -398,7 +376,7 @@ export default function Admin() {
 
 
   /* =======================================================
-     VIEW
+     VIEW VERIFICATION
   ======================================================= */
 
   function openVerification(record) {
@@ -409,24 +387,13 @@ export default function Admin() {
       return;
     }
 
-    /*
-     * IMPORTANT:
-     * Use a relative URL for the View button.
-     *
-     * Local:
-     * http://localhost:5173/verify/EC-NO
-     *
-     * Production:
-     * https://raims.oep-gov-bd.site/verify/EC-NO
-     *
-     * This keeps local development from trying to open
-     * the production domain before DNS is configured.
-     */
-    const localVerifyUrl =
-      `/verify/${encodeURIComponent(record.ec_no)}`;
+    const verifyUrl =
+      `/verify/${encodeURIComponent(
+        record.ec_no
+      )}`;
 
     window.open(
-      localVerifyUrl,
+      verifyUrl,
       "_blank",
       "noopener,noreferrer"
     );
@@ -434,7 +401,7 @@ export default function Admin() {
 
 
   /* =======================================================
-     STATS
+     STATISTICS
   ======================================================= */
 
   const totalRecords =
@@ -461,7 +428,11 @@ export default function Admin() {
       records
         .map(
           (record) =>
-            record.country
+            String(
+              record.country || ""
+            )
+              .trim()
+              .toLowerCase()
         )
         .filter(Boolean)
     ).size;
@@ -475,8 +446,8 @@ export default function Admin() {
     <main className="admin-page">
 
       {/* ===================================================
-          TOP HEADER
-      ==================================================== */}
+          HEADER
+      =================================================== */}
 
       <header className="admin-header">
 
@@ -484,11 +455,13 @@ export default function Admin() {
 
           <div className="admin-brand-icon">
             <ShieldCheck
-              size={22}
+              size={23}
+              strokeWidth={2}
             />
           </div>
 
-          <div>
+          <div className="admin-brand-copy">
+
             <div className="admin-eyebrow">
               VERIFICATION SYSTEM
             </div>
@@ -501,6 +474,7 @@ export default function Admin() {
               Manage verified records,
               documents and QR access.
             </p>
+
           </div>
 
         </div>
@@ -515,7 +489,6 @@ export default function Admin() {
               loadRecords(true)
             }
             disabled={refreshing}
-            title="Refresh"
           >
             <RefreshCw
               size={15}
@@ -528,19 +501,6 @@ export default function Admin() {
 
             <span>
               Refresh
-            </span>
-          </button>
-
-
-          <button
-            type="button"
-            className="add-record-button"
-            onClick={openAdd}
-          >
-            <Plus size={16} />
-
-            <span>
-              Add Data
             </span>
           </button>
 
@@ -564,15 +524,22 @@ export default function Admin() {
 
       {/* ===================================================
           CONTENT
-      ==================================================== */}
+      =================================================== */}
 
       <section className="admin-content">
 
+        {/* ERROR */}
+
         {error && (
           <div className="admin-error">
-            <span>
-              {error}
-            </span>
+
+            <div className="admin-error-content">
+              <span className="admin-error-dot" />
+
+              <span>
+                {error}
+              </span>
+            </div>
 
             <button
               type="button"
@@ -582,20 +549,21 @@ export default function Admin() {
             >
               <X size={15} />
             </button>
+
           </div>
         )}
 
 
         {/* =================================================
             STATS
-        ================================================== */}
+        ================================================= */}
 
         <div className="stats-grid">
 
           <StatCard
             icon={
               <FileCheck2
-                size={18}
+                size={19}
               />
             }
             label="Total Records"
@@ -606,7 +574,7 @@ export default function Admin() {
           <StatCard
             icon={
               <ShieldCheck
-                size={18}
+                size={19}
               />
             }
             label="Verified"
@@ -617,7 +585,7 @@ export default function Admin() {
           <StatCard
             icon={
               <UserRound
-                size={18}
+                size={19}
               />
             }
             label="Pending"
@@ -628,7 +596,7 @@ export default function Admin() {
           <StatCard
             icon={
               <Globe2
-                size={18}
+                size={19}
               />
             }
             label="Countries"
@@ -640,14 +608,17 @@ export default function Admin() {
 
 
         {/* =================================================
-            RECORD CARD
-        ================================================== */}
+            RECORDS
+        ================================================= */}
 
-        <div className="records-card">
+        <section className="records-card">
+
+          {/* RECORD HEADER */}
 
           <div className="records-card-header">
 
-            <div>
+            <div className="records-title-area">
+
               <div className="section-kicker">
                 DATABASE
               </div>
@@ -660,17 +631,40 @@ export default function Admin() {
                 Search, edit, view or generate
                 a QR code for any record.
               </p>
+
             </div>
 
 
-            <div className="header-record-count">
-              <strong>
-                {filteredRecords.length}
-              </strong>
+            <div className="records-header-right">
 
-              <span>
-                records
-              </span>
+              <button
+                type="button"
+                className="records-add-button"
+                onClick={openAdd}
+              >
+                <Plus
+                  size={16}
+                  strokeWidth={2.3}
+                />
+
+                <span>
+                  Add Data
+                </span>
+              </button>
+
+
+              <div className="header-record-count">
+
+                <strong>
+                  {filteredRecords.length}
+                </strong>
+
+                <span>
+                  RECORDS
+                </span>
+
+              </div>
+
             </div>
 
           </div>
@@ -682,7 +676,7 @@ export default function Admin() {
 
             <div className="search-admin">
 
-              <Search size={16} />
+              <Search size={17} />
 
               <input
                 type="text"
@@ -702,12 +696,22 @@ export default function Admin() {
                   onClick={() =>
                     setSearch("")
                   }
+                  aria-label="Clear search"
                 >
                   <X size={14} />
                 </button>
               )}
 
             </div>
+
+            {search && (
+              <div className="search-result-count">
+                {filteredRecords.length} result
+                {filteredRecords.length !== 1
+                  ? "s"
+                  : ""}
+              </div>
+            )}
 
           </div>
 
@@ -722,28 +726,30 @@ export default function Admin() {
 
                 <div className="table-spinner" />
 
+                <strong>
+                  Loading records
+                </strong>
+
                 <span>
-                  Loading records...
+                  Please wait...
                 </span>
 
               </div>
 
-            ) : (
+            ) : filteredRecords.length > 0 ? (
 
               <table className="admin-table">
 
                 <thead>
-
                   <tr>
-                    <th>EC No</th>
-                    <th>Name</th>
-                    <th>BMET No</th>
-                    <th>Passport</th>
-                    <th>Country</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>EC NO</th>
+                    <th>NAME</th>
+                    <th>BMET NO</th>
+                    <th>PASSPORT</th>
+                    <th>COUNTRY</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
                   </tr>
-
                 </thead>
 
 
@@ -755,6 +761,8 @@ export default function Admin() {
                       <tr
                         key={record.id}
                       >
+
+                        {/* EC */}
 
                         <td>
                           <div className="ec-cell">
@@ -770,7 +778,10 @@ export default function Admin() {
                         </td>
 
 
+                        {/* NAME */}
+
                         <td>
+
                           <div className="name-cell">
 
                             <div className="name-avatar">
@@ -780,7 +791,8 @@ export default function Admin() {
                                 "?"}
                             </div>
 
-                            <div>
+                            <div className="name-content">
+
                               <strong>
                                 {record.name ||
                                   "—"}
@@ -790,29 +802,45 @@ export default function Admin() {
                                 {record.recruiting_agency ||
                                   "Verification record"}
                               </span>
+
                             </div>
 
                           </div>
+
                         </td>
 
+
+                        {/* BMET */}
 
                         <td>
-                          {record.bmet_no ||
-                            "—"}
+                          <span className="table-value">
+                            {record.bmet_no ||
+                              "—"}
+                          </span>
                         </td>
 
+
+                        {/* PASSPORT */}
 
                         <td>
-                          {record.passport_no ||
-                            "—"}
+                          <span className="table-value">
+                            {record.passport_no ||
+                              "—"}
+                          </span>
                         </td>
 
+
+                        {/* COUNTRY */}
 
                         <td>
-                          {record.country ||
-                            "—"}
+                          <span className="country-value">
+                            {record.country ||
+                              "—"}
+                          </span>
                         </td>
 
+
+                        {/* STATUS */}
 
                         <td>
 
@@ -830,6 +858,8 @@ export default function Admin() {
 
                         </td>
 
+
+                        {/* ACTIONS */}
 
                         <td>
 
@@ -903,19 +933,12 @@ export default function Admin() {
 
               </table>
 
-            )}
-
-          </div>
-
-
-          {!loading &&
-            filteredRecords.length ===
-              0 && (
+            ) : (
 
               <div className="no-records">
 
                 <div className="no-records-icon">
-                  <Search size={20} />
+                  <Search size={21} />
                 </div>
 
                 <strong>
@@ -923,22 +946,35 @@ export default function Admin() {
                 </strong>
 
                 <span>
-                  Try another search term
-                  or add a new record.
+                  {search
+                    ? "Try another search term."
+                    : "Add a new verification record to get started."}
                 </span>
+
+                {!search && (
+                  <button
+                    type="button"
+                    onClick={openAdd}
+                  >
+                    <Plus size={14} />
+                    Add Data
+                  </button>
+                )}
 
               </div>
 
             )}
 
-        </div>
+          </div>
+
+        </section>
 
       </section>
 
 
       {/* ===================================================
           ADD / EDIT MODAL
-      ==================================================== */}
+      =================================================== */}
 
       {showForm && (
 
@@ -968,6 +1004,7 @@ export default function Admin() {
                 </div>
 
                 <div>
+
                   <div className="section-kicker">
                     {editing
                       ? "EDIT RECORD"
@@ -984,6 +1021,7 @@ export default function Admin() {
                     Enter the verification
                     information below.
                   </p>
+
                 </div>
 
               </div>
@@ -995,6 +1033,7 @@ export default function Admin() {
                 onClick={() =>
                   setShowForm(false)
                 }
+                aria-label="Close"
               >
                 <X size={18} />
               </button>
@@ -1007,13 +1046,10 @@ export default function Admin() {
               className="verification-form"
             >
 
-              {/* EC */}
-
               <FormSection
                 title="EC Card"
                 description="Basic emigration clearance information."
               >
-
                 <div className="form-grid">
 
                   <Field
@@ -1034,11 +1070,8 @@ export default function Admin() {
                   />
 
                 </div>
-
               </FormSection>
 
-
-              {/* PERSONAL */}
 
               <FormSection
                 title="Personal Information"
@@ -1060,23 +1093,15 @@ export default function Admin() {
                     label="Birth Date"
                     name="birth_date"
                     type="date"
-                    value={
-                      form.birth_date
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.birth_date}
+                    onChange={handleChange}
                   />
 
                   <SelectField
                     label="Gender"
                     name="gender"
-                    value={
-                      form.gender
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.gender}
+                    onChange={handleChange}
                     options={[
                       "",
                       "Male",
@@ -1088,12 +1113,8 @@ export default function Admin() {
                   <Field
                     label="Blood Group"
                     name="blood_group"
-                    value={
-                      form.blood_group
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.blood_group}
+                    onChange={handleChange}
                     placeholder="O+"
                   />
 
@@ -1101,26 +1122,19 @@ export default function Admin() {
                     label="NID"
                     name="nid"
                     value={form.nid}
-                    onChange={
-                      handleChange
-                    }
+                    onChange={handleChange}
                   />
 
                 </div>
 
-
                 <FileField
                   label="Photo"
-                  onChange={
-                    handlePhoto
-                  }
+                  onChange={handlePhoto}
                   file={photo}
                 />
 
               </FormSection>
 
-
-              {/* PASSPORT */}
 
               <FormSection
                 title="Passport"
@@ -1130,12 +1144,8 @@ export default function Admin() {
                 <Field
                   label="Passport No"
                   name="passport_no"
-                  value={
-                    form.passport_no
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.passport_no}
+                  onChange={handleChange}
                 />
 
                 <div className="form-grid">
@@ -1147,9 +1157,7 @@ export default function Admin() {
                     value={
                       form.passport_issue_date
                     }
-                    onChange={
-                      handleChange
-                    }
+                    onChange={handleChange}
                   />
 
                   <Field
@@ -1159,17 +1167,13 @@ export default function Admin() {
                     value={
                       form.passport_expire_date
                     }
-                    onChange={
-                      handleChange
-                    }
+                    onChange={handleChange}
                   />
 
                 </div>
 
               </FormSection>
 
-
-              {/* VISA */}
 
               <FormSection
                 title="Visa"
@@ -1179,12 +1183,8 @@ export default function Admin() {
                 <Field
                   label="Visa No"
                   name="visa_no"
-                  value={
-                    form.visa_no
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.visa_no}
+                  onChange={handleChange}
                 />
 
                 <div className="form-grid">
@@ -1196,9 +1196,7 @@ export default function Admin() {
                     value={
                       form.visa_issue_date
                     }
-                    onChange={
-                      handleChange
-                    }
+                    onChange={handleChange}
                   />
 
                   <Field
@@ -1208,9 +1206,7 @@ export default function Admin() {
                     value={
                       form.visa_expire_date
                     }
-                    onChange={
-                      handleChange
-                    }
+                    onChange={handleChange}
                   />
 
                 </div>
@@ -1218,28 +1214,18 @@ export default function Admin() {
               </FormSection>
 
 
-              {/* REFERRAL */}
-
               <FormSection
                 title="Referral"
                 description="Referral information."
               >
-
                 <Field
                   label="Referral No"
                   name="referral_no"
-                  value={
-                    form.referral_no
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.referral_no}
+                  onChange={handleChange}
                 />
-
               </FormSection>
 
-
-              {/* EMPLOYMENT */}
 
               <FormSection
                 title="Employment"
@@ -1252,9 +1238,7 @@ export default function Admin() {
                   value={
                     form.recruiting_agency
                   }
-                  onChange={
-                    handleChange
-                  }
+                  onChange={handleChange}
                 />
 
                 <div className="form-grid">
@@ -1262,23 +1246,15 @@ export default function Admin() {
                   <Field
                     label="Employer"
                     name="employer"
-                    value={
-                      form.employer
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.employer}
+                    onChange={handleChange}
                   />
 
                   <Field
                     label="Country"
                     name="country"
-                    value={
-                      form.country
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.country}
+                    onChange={handleChange}
                   />
 
                 </div>
@@ -1286,49 +1262,33 @@ export default function Admin() {
               </FormSection>
 
 
-              {/* BMET */}
-
               <FormSection
                 title="BMET Registration"
                 description="BMET registration details."
               >
-
                 <Field
                   label="BMET No"
                   name="bmet_no"
-                  value={
-                    form.bmet_no
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.bmet_no}
+                  onChange={handleChange}
                 />
-
               </FormSection>
 
-
-              {/* PASSPORTS */}
 
               <FormSection
                 title="Passports"
                 description="Additional passport record."
               >
-
                 <Field
                   label="Passport No 1"
                   name="passport_no_1"
                   value={
                     form.passport_no_1
                   }
-                  onChange={
-                    handleChange
-                  }
+                  onChange={handleChange}
                 />
-
               </FormSection>
 
-
-              {/* STATUS */}
 
               <FormSection
                 title="Status & Notes"
@@ -1338,12 +1298,8 @@ export default function Admin() {
                 <SelectField
                   label="Verification Status"
                   name="status"
-                  value={
-                    form.status
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.status}
+                  onChange={handleChange}
                   options={[
                     "VERIFIED",
                     "PENDING",
@@ -1360,12 +1316,8 @@ export default function Admin() {
 
                   <textarea
                     name="description"
-                    value={
-                      form.description
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.description}
+                    onChange={handleChange}
                     rows="4"
                     placeholder="Additional information..."
                   />
@@ -1377,6 +1329,7 @@ export default function Admin() {
 
               {error && (
                 <div className="form-error">
+                  <span className="admin-error-dot" />
                   {error}
                 </div>
               )}
@@ -1434,7 +1387,7 @@ export default function Admin() {
 
       {/* ===================================================
           QR MODAL
-      ==================================================== */}
+      =================================================== */}
 
       {qrRecord && (
 
@@ -1457,6 +1410,7 @@ export default function Admin() {
               onClick={() =>
                 setQrRecord(null)
               }
+              aria-label="Close QR"
             >
               <X size={18} />
             </button>
@@ -1495,8 +1449,7 @@ export default function Admin() {
               </span>
 
               <strong>
-                {qrRecord.ec_no ||
-                  "—"}
+                {qrRecord.ec_no || "—"}
               </strong>
 
             </div>
@@ -1505,11 +1458,9 @@ export default function Admin() {
             <div className="qr-box">
 
               <QRCodeSVG
-                value={
-                  getVerifyUrl(
-                    qrRecord.ec_no
-                  )
-                }
+                value={getVerifyUrl(
+                  qrRecord.ec_no
+                )}
                 size={220}
                 level="H"
                 includeMargin
@@ -1519,11 +1470,9 @@ export default function Admin() {
 
 
             <div className="qr-url">
-
               {getVerifyUrl(
                 qrRecord.ec_no
               )}
-
             </div>
 
 
@@ -1536,12 +1485,8 @@ export default function Admin() {
                 )
               }
             >
-              <ExternalLink
-                size={15}
-              />
-
+              <ExternalLink size={15} />
               Open Verification
-
             </button>
 
           </div>
@@ -1574,7 +1519,8 @@ function StatCard({
         {icon}
       </div>
 
-      <div>
+      <div className="stat-content">
+
         <span>
           {label}
         </span>
@@ -1582,6 +1528,7 @@ function StatCard({
         <strong>
           {value}
         </strong>
+
       </div>
 
     </div>
@@ -1639,6 +1586,7 @@ function Field({
     <div className="form-field">
 
       <label htmlFor={name}>
+
         {label}
 
         {required && (
@@ -1646,6 +1594,7 @@ function Field({
             *
           </span>
         )}
+
       </label>
 
       <input
@@ -1688,17 +1637,14 @@ function SelectField({
         onChange={onChange}
       >
 
-        {options.map(
-          (option) => (
-            <option
-              key={option}
-              value={option}
-            >
-              {option ||
-                "Select"}
-            </option>
-          )
-        )}
+        {options.map((option) => (
+          <option
+            key={option}
+            value={option}
+          >
+            {option || "Select"}
+          </option>
+        ))}
 
       </select>
 
@@ -1735,7 +1681,8 @@ function FileField({
           <UserRound size={18} />
         </div>
 
-        <div>
+        <div className="file-drop-copy">
+
           <strong>
             {file
               ? file.name
@@ -1745,6 +1692,7 @@ function FileField({
           <span>
             JPG, PNG or WEBP
           </span>
+
         </div>
 
       </label>
