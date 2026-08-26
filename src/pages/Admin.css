@@ -101,13 +101,7 @@
 
   color: #ffffff;
 
-  background:
-    linear-gradient(
-      145deg,
-      #0a9b4b,
-      #07843f
-    );
-
+ 
   box-shadow:
     0 9px 22px rgba(7, 141, 67, 0.18);
 }

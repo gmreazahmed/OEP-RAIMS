@@ -454,10 +454,10 @@ export default function Admin() {
         <div className="admin-brand-area">
 
           <div className="admin-brand-icon">
-            <ShieldCheck
-              size={23}
-              strokeWidth={2}
-            />
+            <img
+            src="/icon.png"
+            alt="OEP RAIMS"
+          />
           </div>
 
           <div className="admin-brand-copy">
